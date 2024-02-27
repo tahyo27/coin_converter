@@ -50,6 +50,8 @@ function App() {
         <h1>환율</h1>
         <div>{exchangeRate.date}</div>
         <div>{exchangeRate.krw}</div>
+        <h1>코인 USD</h1>
+        {coins.map((item) => <li>{item.quotes.USD.price}</li>)}
         </div>
       <div>
         <input
