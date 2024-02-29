@@ -3,54 +3,88 @@ import { useState, useEffect } from "react";
 
 function App() {
   const [loading, setLoading] = useState(true);
-  const [coinName, setCoinName] = useState(""); //코인 이름 충돌하는것 같아서 만듦
   const [coins, setCoins] = useState([]); //배열로 받음
-  const [selectValue, setselectValue] = useState(""); // input에 넣을것
-  const [exchangeRate, setExchangeRate] = useState({date: "", krw: 0}); //환율
-  const [disable, setDisable] = useState(false); // 코인 won 입력창
-  const [amount, setAmount] = useState(0); // 코인 인풋
-  const [coinPrice, setCoinPrice] = useState(0); // 코인값 관리
+  const [exchangeRate, setExchangeRate] = useState({ date: "", krw: 0 }); //환율
+  const [alphabet, setAlphabet] = useState("");
+  const [filteredCoins, setFilteredCoins] = useState([]);
+  const [selectedCoin, setSelectedCoin] = useState(null);
+  const [input1, setInput1] = useState(0);
+  const [input2, setInput2] = useState(0);
+  const [disable, setDisable] = useState(false);
+  
 
-    useEffect(() => {
-      const fetchData = async () => {
-        try {
-          // 첫 번째 fetch 요청
-          const response1 = await fetch("https://api.coinpaprika.com/v1/tickers");
-          const data1 = await response1.json();
-          setCoins(data1);
-          
-    
-          // 두 번째 fetch 요청
-          const response2 = await fetch("https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/usd/krw.json");
-          const data2 = await response2.json();
-          setExchangeRate(data2);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // 첫 번째 fetch 요청
+        const response1 = await fetch("https://api.coinpaprika.com/v1/tickers");
+        const data1 = await response1.json();
+        setCoins(data1);
 
-          setLoading(false);
 
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
-      };
-    
-      fetchData();
+        // 두 번째 fetch 요청
+        const response2 = await fetch("https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/usd/krw.json");
+        const data2 = await response2.json();
+        setExchangeRate(data2);
+
+        setLoading(false);
+
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
 
 
   }, []);
 
-  
+  useEffect(() => {
+    // 알파벳에 해당하는 코인 필터링
+    if (alphabet) {
+      const filtered = coins.filter(coin => coin.name.startsWith(alphabet));
+      setFilteredCoins(filtered);
+    } else {
+      setFilteredCoins([]);
+    }
+  }, [alphabet, coins]);
 
-  const inputChange = (event) => {
-    const inputText = event.target.value;
-    setCoinName(inputText);
+  const handleCoinClick = (coin) => {
+    setSelectedCoin(coin);
+    setInput1("");
+    setInput2("");
+    setAlphabet("");
   };
 
-  const amountChange = (event) => {
-    setAmount(event.target.value);
+  const handleAlphabetClick = () => {
+    setSelectedCoin(null); // 알파벳을 누르면 선택된 코인 초기화
+  };
+
+  const input1Onchange = (event) => {
+    const input1 = event.target.value;
+    const coinPrice = selectedCoin.quotes.USD.price;
+    const toWon = input1 * coinPrice * exchangeRate.krw;
+    setInput1(input1);
+    setInput2(toWon.toFixed(2));
   }
 
+  const input2Onchange = (event) => {
+    const input2 = event.target.value;
+    const coinPrice = selectedCoin.quotes.USD.price;
+    const toCoin = (input2 / exchangeRate.krw) / coinPrice;
+    setInput2(input2);
+    setInput1(toCoin.toFixed(2));
+  }
 
-  const filterOption = coins.filter((coins) => coins.name
-  .toLowerCase().startsWith(coinName.toLowerCase()));
+  const flipClick = () => {
+    reset();
+    setDisable((current => !current));
+  }
+
+  const reset = () => {
+    setInput1(0);
+    setInput2(0);
+  }
 
   return (
     <div>
@@ -58,47 +92,58 @@ function App() {
       {loading ? <strong><h1>Loading...</h1></strong> : null}
       <div>
         <h1>환율</h1>
-        <div>{exchangeRate.date}</div>
+        <div>기준 날짜 {exchangeRate.date}</div>
         <div>{exchangeRate.krw}</div>
-        <h1>코인 USD</h1>
+        <h1>코인</h1>
+      </div>
 
-        </div>
       <div>
-        <input
-          type="text"
-          value={coinName}
-          onChange={inputChange}
-        />
-        <select 
-        value={selectValue} 
-        onChange={(event) => {
-          console.log("select value" + selectValue);
-          console.log(event.target.value.split(":")[0]);
-          setselectValue(event.target.value.split(":")[0]);
-          setCoinName(event.target.value.split(":")[0]);
-          setCoinPrice("코인 price" + event.target.value.split(":")[1]);
-          console.log(event.target.value.split(":")[1]);
-          console.log(exchangeRate.krw);
-        }}
-        > 
-          {filterOption.map((item, index) => (
-            <option key={index} value={`${item.name}:${item.quotes.USD.price}`}>{item.name} : {item.symbol}</option>
-          ))}
-        </select>
-        <div>
-          <h1>코인 to Won</h1>
-        <input
-          type="text"
-          value={amount}
-          disabled={disable}
-          onChange={amountChange}
-        />코인
-        <div>
-          {(amount * (exchangeRate.krw * coinPrice)).toFixed(4)}원
-        </div>
-        
-        </div>
-       
+        {/* 알파벳 버튼들 */}
+        {Array.from({ length: 26 }, (_, index) => String.fromCharCode(65 + index)).map(item => (
+          <button key={item} onClick={() => { setAlphabet(item); handleAlphabetClick(); }}>
+            {item}
+          </button>
+        ))}
+
+        {selectedCoin && (
+          // 선택된 코인의 이름과 가격 표시
+          <div>
+            <h2>{selectedCoin.name}</h2>
+            <p>가격: ${selectedCoin.quotes.USD.price.toFixed(10)}</p>
+          </div>
+        )}
+
+        {!selectedCoin && (
+          // 선택된 알파벳에 해당하는 코인 목록
+          <ul>
+            {filteredCoins.map(coin => (
+              <li key={coin.id} onClick={() => handleCoinClick(coin)}>
+                {coin.name}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {selectedCoin && (
+          // 입력창 2개
+          <div>
+            <input
+              type="number"
+              placeholder="입력창 1"
+              value={input1}
+              onChange={input1Onchange}
+              disabled={disable}
+            />
+            <input
+              type="number"
+              placeholder="입력창 2"
+              value={input2}
+              onChange={input2Onchange}
+              disabled={!disable}
+            />
+            <button onClick={flipClick}>flip</button>
+          </div>
+        )}
       </div>
     </div>
   );
