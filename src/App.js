@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import './App.css';
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -87,17 +88,18 @@ function App() {
   }
 
   return (
-    <div>
+    <div className="coin-converter-container">
       <h1>Coin converter</h1>
       {loading ? <strong><h1>Loading...</h1></strong> : null}
-      <div>
+
+      <div className="exchange-section">
         <h1>환율</h1>
         <div>기준 날짜 {exchangeRate.date}</div>
         <div>{exchangeRate.krw}</div>
         <h1>코인</h1>
       </div>
 
-      <div>
+      <div className="alphabet-buttons">
         {/* 알파벳 버튼들 */}
         {Array.from({ length: 26 }, (_, index) => String.fromCharCode(65 + index)).map(item => (
           <button key={item} onClick={() => { setAlphabet(item); handleAlphabetClick(); }}>
@@ -107,7 +109,7 @@ function App() {
 
         {selectedCoin && (
           // 선택된 코인의 이름과 가격 표시
-          <div>
+          <div className="selected-coin-info">
             <h2>{selectedCoin.name}</h2>
             <p>가격: ${selectedCoin.quotes.USD.price.toFixed(10)}</p>
           </div>
@@ -115,7 +117,7 @@ function App() {
 
         {!selectedCoin && (
           // 선택된 알파벳에 해당하는 코인 목록
-          <ul>
+          <ul className="coin-list">
             {filteredCoins.map(coin => (
               <li key={coin.id} onClick={() => handleCoinClick(coin)}>
                 {coin.name}
@@ -126,21 +128,27 @@ function App() {
 
         {selectedCoin && (
           // 입력창 2개
-          <div>
-            <input
-              type="number"
-              placeholder="입력창 1"
-              value={input1}
-              onChange={input1Onchange}
-              disabled={disable}
-            />
-            <input
-              type="number"
-              placeholder="입력창 2"
-              value={input2}
-              onChange={input2Onchange}
-              disabled={!disable}
-            />
+          <div className="input-section">
+            <div>
+              <input
+                type="number"
+                placeholder="코인"
+                value={input1}
+                onChange={input1Onchange}
+                disabled={disable}
+              />
+            </div>
+            
+            <div>
+              <input
+                type="number"
+                placeholder="원"
+                value={input2}
+                onChange={input2Onchange}
+                disabled={!disable}
+              />
+            </div>
+            
             <button onClick={flipClick}>flip</button>
           </div>
         )}
