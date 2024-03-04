@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/tahyo27/coin_converter.git/static/css/main.e18b764b.css",
+    "main.js": "/tahyo27/coin_converter.git/static/js/main.5116f0ff.js",
+    "index.html": "/tahyo27/coin_converter.git/index.html",
+    "main.e18b764b.css.map": "/tahyo27/coin_converter.git/static/css/main.e18b764b.css.map",
+    "main.5116f0ff.js.map": "/tahyo27/coin_converter.git/static/js/main.5116f0ff.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e18b764b.css",
+    "static/js/main.5116f0ff.js"
+  ]
+}
