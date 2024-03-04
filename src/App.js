@@ -24,9 +24,12 @@ function App() {
 
 
         // 두 번째 fetch 요청
-        const response2 = await fetch("https://cdn.jsdelivr.net/gh/fawazahmed0/currency-api@1/latest/currencies/usd/krw.json");
+        const response2 = await fetch("https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json");
         const data2 = await response2.json();
-        setExchangeRate(data2);
+        const krwValue = data2.usd.krw;
+        const dateValue = data2.date;
+        
+        setExchangeRate({ date: dateValue, krw: krwValue });
 
         setLoading(false);
 
